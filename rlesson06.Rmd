@@ -18,105 +18,106 @@ library(ggplot2)
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
+To be updated ..
 
-## Simulating Bernoulli Random Variables
+<!-- ## Simulating Bernoulli Random Variables -->
 
-Suppose $Y\sim\text{Ber}(0.9)$. We will simulate 10,000 values of $Y$ from $U\sim\text{U}(0,1)$.
+<!-- Suppose $Y\sim\text{Ber}(0.9)$. We will simulate 10,000 values of $Y$ from $U\sim\text{U}(0,1)$. -->
 
-1. Simulate 10,000 values of $U$.
+<!-- 1. Simulate 10,000 values of $U$. -->
 
-```{r echo=TRUE}
-u <- runif(10^4, min = 0, max = 1)
-```
+<!-- ```{r echo=TRUE} -->
+<!-- u <- runif(10^4, min = 0, max = 1) -->
+<!-- ``` -->
 
-2. Transform them to $Y$ based on
+<!-- 2. Transform them to $Y$ based on -->
 
-$$Y=\begin{cases}1 & U>0.9 \\ 0 & U\le 0.9\end{cases}$$
+<!-- $$Y=\begin{cases}1 & U>0.9 \\ 0 & U\le 0.9\end{cases}$$ -->
 
-```{r echo=TRUE}
-y <- ifelse(u > 0.9, 1, 0)
-```
+<!-- ```{r echo=TRUE} -->
+<!-- y <- ifelse(u > 0.9, 1, 0) -->
+<!-- ``` -->
 
-We can check the results using histograms.
+<!-- We can check the results using histograms. -->
 
-```{r echo=TRUE}
-par(mfrow = c(1, 2)) # allows placing 2 plots side-by-side
-hist(u)
-hist(y) 
-```
+<!-- ```{r echo=TRUE} -->
+<!-- par(mfrow = c(1, 2)) # allows placing 2 plots side-by-side -->
+<!-- hist(u) -->
+<!-- hist(y)  -->
+<!-- ``` -->
 
-We can also try using density histograms.
+<!-- We can also try using density histograms. -->
 
-```{r echo=TRUE}
-par(mfrow = c(1, 2)) # allows placing 2 plots side-by-side
-hist(u, freq = FALSE)
-hist(y, freq = FALSE) 
-```
+<!-- ```{r echo=TRUE} -->
+<!-- par(mfrow = c(1, 2)) # allows placing 2 plots side-by-side -->
+<!-- hist(u, freq = FALSE) -->
+<!-- hist(y, freq = FALSE)  -->
+<!-- ``` -->
 
-<hr />
+<!-- <hr /> -->
 
-### Sidenote
+<!-- ### Sidenote -->
 
-What's happening with the height?
+<!-- What's happening with the height? -->
 
-```{r echo=TRUE, eval=FALSE}
-hist(y, breaks = 2, freq = FALSE)
-library(ggplot2)
-ggplot() +
-  theme_classic() +
-  geom_histogram(aes(x = y, y = after_stat(density)), bins = 2) +
-  scale_y_continuous(breaks = c(0, 0.1, 0.9, 1), limits = c(0, 1))
-```
+<!-- ```{r echo=TRUE, eval=FALSE} -->
+<!-- hist(y, breaks = 2, freq = FALSE) -->
+<!-- library(ggplot2) -->
+<!-- ggplot() + -->
+<!--   theme_classic() + -->
+<!--   geom_histogram(aes(x = y, y = after_stat(density)), bins = 2) + -->
+<!--   scale_y_continuous(breaks = c(0, 0.1, 0.9, 1), limits = c(0, 1)) -->
+<!-- ``` -->
 
-```{r echo=FALSE, out.width="50%"}
-hist(y, breaks = 2, freq = FALSE)
-ggplot() +
-  theme_classic() +
-  geom_histogram(aes(x = y, y = after_stat(density)), bins = 2) +
-  scale_y_continuous(breaks = c(0, 0.1, 0.9, 1), limits = c(0, 1))
-```
-
-
-
-What `hist(..., freq = FALSE)` does..
-
-```{r echo=FALSE}
-# base r
-table(y)/10000/0.5
-```
-
-What `geom_histogram(aes(y = after_stat(density), ...` does 
-
-```{r}
-# ggplot approach
-gg <- ggplot() +
-  theme_classic() +
-  geom_histogram(aes(x = y, y = after_stat(density)), bins = 2) +
-  scale_y_continuous(breaks = c(0, 0.1, 0.9, 1), limits = c(0, 1))
-ggplot_build(gg)$data[[1]] %>% select(y, count, density)
-```
-
-```{r echo=TRUE}
-sum(density(y)$y[density(y)$x < 0.5])/sum(density(y)$y)
-sum(density(y)$y[density(y)$x > 0.5])/sum(density(y)$y)
-```
+<!-- ```{r echo=FALSE, out.width="50%"} -->
+<!-- hist(y, breaks = 2, freq = FALSE) -->
+<!-- ggplot() + -->
+<!--   theme_classic() + -->
+<!--   geom_histogram(aes(x = y, y = after_stat(density)), bins = 2) + -->
+<!--   scale_y_continuous(breaks = c(0, 0.1, 0.9, 1), limits = c(0, 1)) -->
+<!-- ``` -->
 
 
 
-## Simulating Exponential Random Variables
+<!-- What `hist(..., freq = FALSE)` does.. -->
 
-We would like to generate 100,000 samples of $\text{Exp}(3)$.
-Recall the cdf of an exponential random variable is
+<!-- ```{r echo=FALSE} -->
+<!-- # base r -->
+<!-- table(y)/10000/0.5 -->
+<!-- ``` -->
 
-$$F_X(x)=1-e^{-\lambda x}$$
-which leads to
+<!-- What `geom_histogram(aes(y = after_stat(density), ...` does  -->
 
-$$F_X^{-1}(u)=\frac{\log\left(1-u\right)}{-\lambda}.$$
+<!-- ```{r} -->
+<!-- # ggplot approach -->
+<!-- gg <- ggplot() + -->
+<!--   theme_classic() + -->
+<!--   geom_histogram(aes(x = y, y = after_stat(density)), bins = 2) + -->
+<!--   scale_y_continuous(breaks = c(0, 0.1, 0.9, 1), limits = c(0, 1)) -->
+<!-- ggplot_build(gg)$data[[1]] %>% select(y, count, density) -->
+<!-- ``` -->
 
-```{r exx, exercise=TRUE, exercise.lines=20}
-u <- runif(10^5)
-lambda <- 3
-```
+<!-- ```{r echo=TRUE} -->
+<!-- sum(density(y)$y[density(y)$x < 0.5])/sum(density(y)$y) -->
+<!-- sum(density(y)$y[density(y)$x > 0.5])/sum(density(y)$y) -->
+<!-- ``` -->
+
+
+
+<!-- ## Simulating Exponential Random Variables -->
+
+<!-- We would like to generate 100,000 samples of $\text{Exp}(3)$. -->
+<!-- Recall the cdf of an exponential random variable is -->
+
+<!-- $$F_X(x)=1-e^{-\lambda x}$$ -->
+<!-- which leads to -->
+
+<!-- $$F_X^{-1}(u)=\frac{\log\left(1-u\right)}{-\lambda}.$$ -->
+
+<!-- ```{r exx, exercise=TRUE, exercise.lines=20} -->
+<!-- u <- runif(10^5) -->
+<!-- lambda <- 3 -->
+<!-- ``` -->
 
 
 
