@@ -18,106 +18,108 @@ library(ggplot2)
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-To be updated ..
 
-<!-- ## Simulating Bernoulli Random Variables -->
+## Generating random numbers from $U(0,1)$
 
-<!-- Suppose $Y\sim\text{Ber}(0.9)$. We will simulate 10,000 values of $Y$ from $U\sim\text{U}(0,1)$. -->
++  We discussed that R provides `rxxx()` functions that generate random values from common distributions
++  We can generate from other distributions using values generated from $U(0,1)$
++  In fact, most, if not all, modern software systems including R simulate any random distributions by transforming a sequence of pseudo-random number that mimic $U(0,1)$
 
-<!-- 1. Simulate 10,000 values of $U$. -->
+### Example: $U(0,1)$ to a discrete random variable
 
-<!-- ```{r echo=TRUE} -->
-<!-- u <- runif(10^4, min = 0, max = 1) -->
-<!-- ``` -->
+Suppose $U\sim U(0,1)$ and $X$ is a discrete random variable with probability mass function $p$.
 
-<!-- 2. Transform them to $Y$ based on -->
+$$p(x)=\begin{cases} 1/2 & x=0 \\ 1/3 & x = 1 \\ 1/6 & x = 3 \\ 0 & \text{otherwise}\end{cases}$$
 
-<!-- $$Y=\begin{cases}1 & U>0.9 \\ 0 & U\le 0.9\end{cases}$$ -->
+1. Generate 100,000 samples of $U$.
+2. Assign $X$ 0 if $U<1/2$, 1 if $U < 1/2 + 1/3$, and 3 otherwise.
+3. Compute the relative frequency of each value of $X$ and compare with its probability mass.
 
-<!-- ```{r echo=TRUE} -->
-<!-- y <- ifelse(u > 0.9, 1, 0) -->
-<!-- ``` -->
+```{r utodiscrete, exercise=TRUE, exercise.lines=15}
+N <- 100000
+U <- runif(N) # generate samples from U(0,1)
 
-<!-- We can check the results using histograms. -->
-
-<!-- ```{r echo=TRUE} -->
-<!-- par(mfrow = c(1, 2)) # allows placing 2 plots side-by-side -->
-<!-- hist(u) -->
-<!-- hist(y)  -->
-<!-- ``` -->
-
-<!-- We can also try using density histograms. -->
-
-<!-- ```{r echo=TRUE} -->
-<!-- par(mfrow = c(1, 2)) # allows placing 2 plots side-by-side -->
-<!-- hist(u, freq = FALSE) -->
-<!-- hist(y, freq = FALSE)  -->
-<!-- ``` -->
-
-<!-- <hr /> -->
-
-<!-- ### Sidenote -->
-
-<!-- What's happening with the height? -->
-
-<!-- ```{r echo=TRUE, eval=FALSE} -->
-<!-- hist(y, breaks = 2, freq = FALSE) -->
-<!-- library(ggplot2) -->
-<!-- ggplot() + -->
-<!--   theme_classic() + -->
-<!--   geom_histogram(aes(x = y, y = after_stat(density)), bins = 2) + -->
-<!--   scale_y_continuous(breaks = c(0, 0.1, 0.9, 1), limits = c(0, 1)) -->
-<!-- ``` -->
-
-<!-- ```{r echo=FALSE, out.width="50%"} -->
-<!-- hist(y, breaks = 2, freq = FALSE) -->
-<!-- ggplot() + -->
-<!--   theme_classic() + -->
-<!--   geom_histogram(aes(x = y, y = after_stat(density)), bins = 2) + -->
-<!--   scale_y_continuous(breaks = c(0, 0.1, 0.9, 1), limits = c(0, 1)) -->
-<!-- ``` -->
+```
 
 
+### Example: $U(0,1)$ to an exponential random variable
 
-<!-- What `hist(..., freq = FALSE)` does.. -->
+Suppose $U\sim U(0,1)$ and $W\sim\text{Exp}(5)$. We know that the cdf of $W$, $F_W$ is given by
 
-<!-- ```{r echo=FALSE} -->
-<!-- # base r -->
-<!-- table(y)/10000/0.5 -->
-<!-- ``` -->
+$$F_W(w)=1-e^{-5 w}, \quad \text{for } w>0.$$
 
-<!-- What `geom_histogram(aes(y = after_stat(density), ...` does  -->
+1. Generate 100,000 samples of $U$.
+2. Assign $W = -\log\left(1-U\right)/5$.
+3. Generate 100,000 samples of $W'$ using `rexp()`.
+4. Compare the density histograms of $W$ and $W'$.
 
-<!-- ```{r} -->
-<!-- # ggplot approach -->
-<!-- gg <- ggplot() + -->
-<!--   theme_classic() + -->
-<!--   geom_histogram(aes(x = y, y = after_stat(density)), bins = 2) + -->
-<!--   scale_y_continuous(breaks = c(0, 0.1, 0.9, 1), limits = c(0, 1)) -->
-<!-- ggplot_build(gg)$data[[1]] %>% select(y, count, density) -->
-<!-- ``` -->
+```{r utoexp, exercise=TRUE, exercise.lines=15}
+N <- 100000
+U <- runif(N) # generate samples from U(0,1)
 
-<!-- ```{r echo=TRUE} -->
-<!-- sum(density(y)$y[density(y)$x < 0.5])/sum(density(y)$y) -->
-<!-- sum(density(y)$y[density(y)$x > 0.5])/sum(density(y)$y) -->
-<!-- ``` -->
+```
 
+```{r utoexp2, exercise=TRUE, exercise.lines=15}
+N <- 100000
+# generate samples from Exp(5) directly
 
+```
 
-<!-- ## Simulating Exponential Random Variables -->
-
-<!-- We would like to generate 100,000 samples of $\text{Exp}(3)$. -->
-<!-- Recall the cdf of an exponential random variable is -->
-
-<!-- $$F_X(x)=1-e^{-\lambda x}$$ -->
-<!-- which leads to -->
-
-<!-- $$F_X^{-1}(u)=\frac{\log\left(1-u\right)}{-\lambda}.$$ -->
-
-<!-- ```{r exx, exercise=TRUE, exercise.lines=20} -->
-<!-- u <- runif(10^5) -->
-<!-- lambda <- 3 -->
-<!-- ``` -->
+### Why it works
 
 
+```{r echo=FALSE, out.width="80%", fig.asp=9/16, dpi=144}
+a <- 2
+b <- 4
+quant <- tibble(x = seq(0, 1, 0.001)) %>%
+  mutate(y = pbeta(x, a, b)) %>%
+  add_row(x = c(-1, 2), y = c(0, 1))
+ggplot(quant, aes(x = x, y = y)) +
+  theme_classic() +
+  scale_y_continuous(breaks = c(0, pbeta(0.4, a, b), 1), labels = c("0", "u", "1")) +
+  scale_x_continuous(breaks = c(0, 0.4, 1), labels = c("a", expression(F^{-1}*(u)), "b")) +
+  annotate("segment", x = 0.4, xend = 0.4, y = 0, yend = pbeta(0.4, a, b), linetype = "dotted") +
+  annotate("segment", x = -1, xend = 0.4, y =  pbeta(0.4, a, b), yend = pbeta(0.4, a, b), linetype = "dotted") +
+  geom_line() +
+  coord_cartesian(xlim = c(-0.2, 1.2)) +
+  labs(y = "F(x)", x = "x") +
+  theme(axis.text = element_text(size = 18),
+        axis.title = element_text(size = 18),
+        plot.title = element_text(size = 24, hjust = 0.5),
+        plot.title.position = "plot")
+```
 
++  First, note that for any number $y\in[0,1]$ and $U\sim U(0,1)$, $P(U\le y)=y$.
++  Since any cdf $F$ is between 0 and 1, $P(U\le F(x)) = F(x)$.
++  When $F$ is strictly increasing and thus invertible, we have $P(F^{-1}(U)\le x)=F(x)$.
++  This implies that $F^{-1}(U)$ follows a distribution with cdf $F$.
++  See Dekking et a. Section 6.1 for the general discussion.
+
+
+## Simulating conditions and control flow
+
+Suppose you and Michael play 5 rounds of Rock, Paper, and Scissors. For each round, if you win with a rock, Michael pays you \$1,  if with paper \$2, and if with scissors \$3. When you lose with the hands, you pay the assigned amounts to Michael. When you hands are the same (tie), you both put \$3 to a communal cash box. i.e., you _both_ lose \$3.
+
+Assume both you and Michael randomly pick hand independently in each round. Let $Y$ be the amount you win after 5 rounds, $X$ be the amount that goes to the communal box, and $W$ be the number of rounds you win out of 5.
+
+1. Simulate 100,000 plays of 5 rounds
+2. For each simulation, store the amount you win, the amount that goes to the communal box, and the number of rounds you win
+3. Estimate $E(Y)$, $P(Y>6)$, and $P(W\le 2)$
+4. Plot a histogram of $X$
+
+You can use the following functions to simulate a hand and compute the amount of dollors you win after each round.
+
+```{r rsp-setup}
+play_a_hand <- function() {
+  # rock is 1, paper is 2, scissors is 3
+  return(sample(1:3, size = 1))
+}
+```
+
+```{r rsp, exercise=TRUE, exercise.lines=45}
+# example
+you <- play_a_hand()
+michael <- play_a_hand()
+print(paste("Your hand: ", you))
+print(paste("Michael's hand: ", michael))
+```
