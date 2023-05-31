@@ -1,3 +1,3 @@
-# R Exercises for Lecture 04
+# R Exercises for Lecture 06
 
-Prepared for STA237: Probability, Statistics, and Data Analysis I- Summer 2021.
+Prepared for STA237: Probability, Statistics, and Data Analysis I.
