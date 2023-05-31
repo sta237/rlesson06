@@ -207,7 +207,7 @@ ggplot(quant, aes(x = x, y = y)) +
 +  Since any cdf $F$ is between 0 and 1, $P(U\le F(x)) = F(x)$.
 +  When $F$ is strictly increasing and thus invertible, we have $P(F^{-1}(U)\le x)=F(x)$.
 +  This implies that $F^{-1}(U)$ follows a distribution with cdf $F$.
-+  See Dekking et a. Section 6.1 and Section 6.2 for a more detailed discussion.
++  See Dekking et al. Section 6.1 and Section 6.2 for a more detailed discussion.
 
 
 
